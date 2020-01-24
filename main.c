@@ -12,7 +12,7 @@ int printMenu(){
     printf("\n4. Upis novog sloga ");
     printf("\n5. Prikaz svih slogova  ");
     printf("\n6. Logicko brisanje aktuelnog sloga ");
-    printf("\n7. Prikaz svih vozova koji imaju duzinu kompozocije manju od zadatog broja ");
+    printf("\n7. Prikaz svih parcela koji imaju povrsinu manju od");
     printf("\n0. Kraj ");
     printf("\n\nOdaberite opciju: ");
     printf("\n");

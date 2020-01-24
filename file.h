@@ -41,7 +41,7 @@ typedef struct {
 typedef struct {
     Parcela slogovi[b];
     unsigned int adresa;
-    unsigned int slobodniB;
+    unsigned int slobodni;
     unsigned int prekoracioci;
 } Baket;
 
