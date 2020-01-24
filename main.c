@@ -18,28 +18,27 @@ int printMenu(){
     printf("\n");
 }
 
-int menu(char option, Datoteka datoteka){
+int menu(char option, File file){
 
     printMenu();
 
     switch(option){
     case 1: create(); 
         break;
-    case 2: open(&datoteka); 
+    case 2: open(&file); 
         break;
     case 3: 
-        if (datoteka.Otvorena)
-            printf("Aktivna datoteka: %s \n\n", datoteka.NazivDatoteke);
-        else
-            printf("Nema aktivne datoteke.\n\n");
+        file.is_open 
+            ? printf("%s\n", file.name)
+            : printf("Nema aktivnog file-a.\n");
         break;
-    case 4: addSlog(&datoteka);
+    case 4: addSlog(&file);
         break;
-    case 5: readFile(&datoteka);
+    case 5: readFile(&file);
         break;
-    case 6: lremove(&datoteka);
+    case 6: lremove(&file);
         break;
-    case 7: view(&datoteka);
+    case 7: view(&file);
         break;
     case 0:
         break;
