@@ -15,7 +15,9 @@
 #define MAX_EB 7
 #define MAX_TIP 20
 #define MAX_POVRSINA 1000000000
-#define MAX_FILENAME 1000
+
+#define MIN_FILENAME 3
+#define MAX_FILENAME 20
 
 #define START_STRING ""
 #define START_NUMBER 0
@@ -54,5 +56,8 @@ typedef struct {
 int read(File* file, unsigned int adr, Baket* baket);
 int write(File* file, unsigned int adr, Baket* baket);
 int create();
+int open(File* file);
+void add(File* file);
+void view(File* file);
 
 #endif

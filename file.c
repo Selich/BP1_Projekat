@@ -8,7 +8,7 @@ int create(){
     File file;
 
     printf("\nUnesite naziv datoteke: ");
-    gets(file.name);
+    file.name = safe_string_input(MIN_FILENAME, MAX_FILENAME);
 
     FILE* fp = fopen(file.name, "wb");
 
@@ -16,11 +16,9 @@ int create(){
         for(int i=1; i<=B; i++)
             create_baket(&file, i);
 
-        success_print("File created", file.name);
     }
-
+    success_print("File created", file.name);
     fclose(file.fp);
-
     return 0;
 }
 
