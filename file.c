@@ -1,6 +1,7 @@
 #include "file.h"
 #include "file.h"
 #include "constraints.h"
+#include "checks.h"
 
 
 int safe_open(char* path, char* mode){
@@ -20,14 +21,20 @@ Baket create_baket(){
         return baket;
 }
 
-int is_out_of_range(unsigned int adr){
-    if(adr < 1 || adr > B) {
-        printf("\n Out of range error");
-        return 1;
-    }
 
-    return 0;
+void write_baket(File *file, int i, Baket *baket){
 
+        for (int j = 0; j < b; j++){
+            strcpy(baket[i].slogovi[j].evidencioni_broj, "");
+            strcpy(baket[i].slogovi[j].naziv_katastarske_opstine, "");
+            strcpy(baket[i].slogovi[j].tip_parcele, "");
+            baket[i].slogovi[j].povrsina_parcele = 0;
+            baket[i].slogovi[j].status_flag = 0;
+        }
+        baket[i].adresa = i;
+        baket[i].slobodniB = b;
+        baket[i].prekoracioci = 0;
+        fwrite(&baket[i], sizeof(Baket), 1, file);
 }
 
 void error_print(char* err_type, char* file_name){
@@ -39,16 +46,14 @@ int create(){
     File file;
 
     printf("\nUnesite naziv datoteke: ");
-    fflush(stdin);
     gets(file.name);
-    // system("cls");
 
     file.fp = safe_open(file.name, "wb");
 
     if(!file.fp) {
         Baket baket = create_baket();
         for(int i=1; i<=B; i++)
-            UpisiBaket(&file, i, &baket);
+            upisiBaket(&file, i, &baket);
 
         printf("\n *** Datoteka '%s' je uspesno kreirana. *** \n", dat.ime);
     }
@@ -113,13 +118,13 @@ void add(File* file) {
     p.status_flag = IN_USE;
 
     printf("\nEvidencioni broj: ");
-    p.evidencioni_broj = safe_string_input(0,7);
+    strcpy(p.evidencioni_broj, safe_string_input(MIN_EB,MAX_EB));
     printf("\nNaziv katastarske opstine: ");
-    p.naziv_katastarske_opstine = safe_string_input(0,7);
+    strcpy(p.naziv_katastarske_opstine, safe_string_input(MIN_NAZIV_KO,MAX_NAZIV_KO));
     printf("\nEvidencioni broj: ");
-    p.povrsina_parcele = safe_number_input(0,7);
+    p.povrsina_parcele = safe_number_input(MIN_P_PARCELE, MAX_P_PARCELE);
     printf("\nTip parcele: ");
-    p.tip_parcele = safe_string_input(0,7);
+    strcpy(p.tip_parcele, safe_string_input(MAX_TIP_PARCELE,MAX_TIP_PARCELE));
 
 
 }

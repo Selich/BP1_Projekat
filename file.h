@@ -17,6 +17,9 @@
 #define MAX_POVRSINA 1000000000
 #define MAX_FILENAME 1000
 
+#define START_STRING ""
+#define START_NUMBER 0
+
 // faktor baketiranja - b
 #define b 3
 // broj baketa - B
@@ -37,11 +40,15 @@ typedef struct {
 
 typedef struct {
     Parcela slogovi[b];
+    unsigned int adresa;
+    unsigned int slobodniB;
+    unsigned int prekoracioci;
 } Baket;
 
 typedef struct {
     FILE* fp;
     char* name;
+    short is_open;
 } File;
 
 int read(File* file, unsigned int adr, Baket* baket);
