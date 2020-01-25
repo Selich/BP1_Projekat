@@ -12,7 +12,7 @@
 #include <stdbool.h>
 
 #define MAX_NAZIV 30
-#define MAX_EB 7
+#define MAX_EB 999999
 #define MAX_TIP 20
 #define MAX_POVRSINA 1000000000
 
@@ -32,8 +32,10 @@
 #define FREE 0
 #define IN_USE 1
 
+#define get_adr(adresa,i) (i * k + adresa) % B
+
 typedef struct {
-    char evidencioni_broj[MAX_EB];
+    int evidencioni_broj;
     char naziv_katastarske_opstine[MAX_NAZIV];
     unsigned int povrsina_parcele;
     char tip_parcele[MAX_TIP];
@@ -53,10 +55,11 @@ typedef struct {
     short is_open;
 } File;
 
-int read(File* file, unsigned int adr, Baket* baket);
-int write(File* file, unsigned int adr, Baket* baket);
+int read(File* file);
+int write(File* file);
 int create();
 int open(File* file);
+void lremove();
 void add(File* file);
 void view(File* file);
 

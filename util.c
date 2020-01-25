@@ -2,6 +2,10 @@
 #include "math.h"
 #include "constraints.h"
 #include "util.h"
+#include "regex.h"
+
+
+#define ASCII_REGEX "[\x00-\x7F]+"
 
 
 void error_print(char* msg, char* file_name){
@@ -53,13 +57,17 @@ int safe_number_input(int min, int max){
 char* safe_string_input(int min, int max){
     char* input;
     do {
-        printf("\nMin: %d", min);
-        printf("\tMax: %d", max);
+        printf("\nMin size: %d", min);
+        printf("\tMax size: %d", max);
+        printf("\nIskljucivo ASCII karakteri!");
         fflush(stdin);
         gets(&input);
 
         if(strlen(input) > max || strlen(input < min))
             error_print("Out of bounds", NULL);
+        if(regcomp(input, ASCII_REGEX, REG_EXTENDED))
+            error_print("Sadrzi karakter koji nije ASCII", NULL);
+
     } while(strlen(input) > max || strlen(input) < min);
     return input;
 }
@@ -70,6 +78,8 @@ Baket search(File *file, int adr){
     fread(&baket, sizeof(Baket), 1, file->fp);
     return baket;
 }
+
+
 
 int transform(unsigned int key, int method){
     switch(method){
@@ -82,6 +92,6 @@ int transform(unsigned int key, int method){
 
 int transform_centralnih_cifara_kljuca(unsigned int key) {
 
-    unsigned int A = ifloor(k / pow(H_v, H_t)) % ifloor(pow(H_v, H_n));
+    int A = ifloor(k / pow(H_v, H_t)) % ifloor(pow(H_v, H_n));
     return ((A * B) / pow(H_v, H_n));
 }

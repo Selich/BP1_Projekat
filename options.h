@@ -7,10 +7,5 @@
 #include <stdbool.h>
 
 
-typedef struct {
-
-    int num;
-    char name;
-} Option;
 
 #endif 

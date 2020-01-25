@@ -1,3 +1,4 @@
+#include "baket.h"
 
 void create_baket(File *file, int i){
         Baket *baket;
@@ -11,7 +12,7 @@ void create_baket(File *file, int i){
             baket[i].slogovi[j].status_flag = FREE;
         }
         baket[i].adresa = i;
-        baket[i].slobodniB = b;
+        baket[i].slobodni = b;
         baket[i].prekoracioci = 0;
         fwrite(&baket[i], sizeof(Baket), 1, file);
 }

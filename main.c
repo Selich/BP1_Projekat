@@ -1,10 +1,6 @@
 #include <stdio.h>
 #include "file.h"
 
-int remove(){
-    return 1;
-}
-
 int printMenu(){
     printf("\n1. Formiranje prazne datoteke ");
     printf("\n2. Otvaranje datoteke ");
@@ -32,9 +28,9 @@ int menu(char option, File file){
             ? printf("%s\n", file.name)
             : printf("Nema aktivnog file-a.\n");
         break;
-    case 4: addSlog(&file);
+    case 4: add(&file);
         break;
-    case 5: readFile(&file);
+    case 5: read(&file);
         break;
     case 6: lremove(&file);
         break;
@@ -52,10 +48,10 @@ int menu(char option, File file){
 int main(){
 
     char option;
-    Datoteka datoteka;
+    File file;
 
     do
-        menu(option, datoteka);
-    while ((option = getc(stdin)) != '0')
+        menu(option, file);
+    while ((option = getc(stdin)) != '0');
 
 }
