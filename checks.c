@@ -2,15 +2,6 @@
 #include "file.h"
 #include "util.h"
 
-
-// int is_file_open(File *file){
-//     {
-//         return;
-//     }
-
-// }
-
-
 short is_file_opened(File* file){
     if (!file->is_open){
         error_print("Not opened", file->name);

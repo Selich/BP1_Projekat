@@ -12,11 +12,18 @@
 #include <stdbool.h>
 
 #define MAX_NAZIV 30
-#define MAX_EB 999999
-#define MAX_TIP 20
-#define MAX_POVRSINA 1000000000
+#define MIN_NAZIV 0
 
-#define MIN_FILENAME 3
+#define MAX_EB 999999
+#define MIN_EB 0
+
+#define MAX_TIP 20
+#define MIN_TIP 0
+
+#define MAX_POVRSINA 1000000000
+#define MIN_POVRSINA 0
+
+#define MIN_FILENAME 0
 #define MAX_FILENAME 20
 
 #define START_STRING ""
@@ -55,12 +62,15 @@ typedef struct {
     short is_open;
 } File;
 
-int read(File* file);
-int write(File* file);
-int create();
-int open(File* file);
-void lremove();
+void open(File* file);
+void make(File* file);
+void show(File* file);
+void read(File* file);
+
 void add(File* file);
+
+void write(File* file);
+void lremove();
 void view(File* file);
 
 #endif

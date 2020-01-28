@@ -1,8 +1,7 @@
-main: main.o
-	gcc main.o -o main
-
-main.o: main.c
-	gcc main.c file.c constraints.c baket.c options.c util.c -o main.o 
+main: main.c file.c util.c
+	gcc -o main main.c file.c util.c -lm && ./main
 
 clean:
-	rm -f main.o main
+	rm -f main main.o file.o util.o
+
+
