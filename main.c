@@ -21,10 +21,17 @@ void menu(int option, File* file){
           read(file);
           break;
         case 6:
-          lremove(file);
+          lrem(file);
           break;
-        // case 7: conditional_view(&file);
-        //     break;
+        case 7: 
+          view1(file);
+          break;
+        case 8: 
+          view2(file);
+          break;
+        case 9: 
+          to_csv(file);
+          break;
         case 0:
             break;
         default:
@@ -32,7 +39,6 @@ void menu(int option, File* file){
             break;
     }
 }
-
 
 void clear(){
 #if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
@@ -53,7 +59,7 @@ int main(){
     file->is_open = 0;
 
 
-    if(!DEBUG) clear();
+    //if(!DEBUG) clear();
     do {
       printf("\n  -----------------------------------");
       printf("\n | 1. Formiranje prazne datoteke");
@@ -75,9 +81,9 @@ int main(){
       printf("\n  -----------------------------------");
       printf("\n");
       printf("\nOdaberite opciju:\t\t      ");
-
       scanf("%d", &option);
-      clear();
+
+     // clear();
       menu(option,file);
 
     } while (option != 0);

@@ -2,6 +2,7 @@
 #include "constraints.h"
 #include "util.h"
 #include <regex.h>
+#include <string.h>
 
 
 
@@ -19,9 +20,53 @@ void find_baket(Baket *baket,  FILE** temp, int adresa){
   for(int i = 0; i < b; i++)
     if(!baket->slogovi[i].status_flag) slog_print(i, baket);
 
-
 }
 
+
+void add_to_baket(Baket *baket, Parcela parcela, int i){
+    baket->slogovi[i].status_flag = IN_USE;
+    baket->slogovi[i].povrsina_parcele = parcela.povrsina_parcele;
+    strcpy(baket->slogovi[i].naziv_katastarske_opstine, parcela.naziv_katastarske_opstine);
+    strcpy(baket->slogovi[i].tip_parcele, parcela.tip_parcele);
+    baket->slobodni--;
+}
+
+
+void write_baket(FILE* file, Baket *baket, int adress){
+    fseek(file, sizeof(Baket) * adress,SEEK_SET);
+    fwrite(baket, sizeof(Baket),1, file);
+}
+
+
+int search_prekoracioci(FILE* opened_file, Baket *baket, int adresa, unsigned int ev){
+        for (int i = 0; i <= B; i++){
+            int current_address = (i * k + adresa) % B;
+
+            Baket temp_baket = search(opened_file, current_address);
+
+            for (int j = 0; j < b; j++){
+                if(temp_baket.slogovi[j].status_flag == FREE)
+                    return 1;
+                if (temp_baket.slogovi[i].evidencioni_broj == ev){
+                    if (temp_baket.slogovi[i].status_flag) {
+                      error_print("Slog vec postoji", NULL);
+                      return 1;
+                    } else {
+                      temp_baket.slogovi[i].status_flag = IN_USE;
+
+                      write_baket(opened_file, &temp_baket, current_address);
+                      temp_baket.prekoracioci++;
+                      write_baket(opened_file, baket, adresa);
+
+                      success_print("Status je sada aktivan", NULL);
+                      break;
+                    }
+
+                }
+            }
+        }
+
+}
 
 
 short is_file_opened(File* file){
@@ -50,6 +95,10 @@ void success_print(char* msg, char* file_name){
     printf("\nSuccess: %s\n", msg);
     if(file_name) printf("File: %s", file_name);
 }
+// TODO : selection
+
+
+void sort_by();
 
 void slog_print(int rbr, Baket *baket){
     printf("\n");
@@ -63,6 +112,7 @@ void slog_print(int rbr, Baket *baket){
 void baket_print(int adr, Baket *baket){
     printf("\nBaket %d",  baket->adresa);
     printf("\nBroj prekoracilaca %d", baket->prekoracioci);
+    printf("\nSlobodnih %d", baket->slobodni);
     for(int i = 0; i < b; i++)
         if(!baket->slogovi[i].status_flag) slog_print(i, baket);
     printf("\n-----------------------------------\n");
@@ -80,12 +130,17 @@ FILE* safe_open(char* path, char* mode){
 
 unsigned int safe_number_input(char *name, int min, int max){
   unsigned int input;
-  printf("\nUnesite %s:\t", name);
-  printf("\nMin: %d", min);
-  printf("\tMax: %d", max);
-  printf("\n---------------------------");
-  printf("\n");
-  scanf("%u", &input);
+  do{
+    printf("\nUnesite %s:\t", name);
+    printf("\nMin: %d", min);
+    printf("\tMax: %d", max);
+    printf("\n---------------------------");
+    printf("\n");
+    scanf("%u", &input);
+    if(input > max && input < min)
+        error_print("Enter a valid number", NULL);
+
+  } while (input > max && input < min);
   return input;
 }
 
@@ -99,54 +154,114 @@ Parcela input_parcela(){
 }
 
 char* safe_string_input(char* name, int min, int max){
-    regex_t re;
-    regmatch_t pm;
-    char *input;
+    char* input = (char*) malloc(sizeof(char) * max);
     printf("\nUnesite %s:\t", name);
     printf("\nMin size: %d", min);
     printf("\tMax size: %d", max);
     printf("\nIskljucivo ASCII karakteri!");
     printf("\n---------------------------");
     printf("\n");
-    gets(input);
-    regcomp(&re, ASCII_REGEX, 0);
+    scanf("%s",input);
     return input;
-
-    // if(strlen(input) > max || strlen(input) < min)
-
-    // if(regexec(&re, input, 1, &pm, REG_EXTENDED))
-
 }
-void write_baket(File* file, int adr, Baket* baket){
-  if(adr < 1 || adr > B) {
-    error_print("Invalid adress", file->name);
-    return;
-  }
+void sort(Parcela arr[], int n, int with, int order_by) { 
+    int i, key, j; 
+    switch(with){
+        case EB: {
+            switch (order_by) {
+            case ASC:{
+                for (i = 1; i < n; i++) { 
+                    key = arr[i].evidencioni_broj; 
+                    j = i - 1; 
+            
+                    while (j >= 0 && arr[j].evidencioni_broj > key) { 
+                        arr[j + 1] = arr[j]; 
+                        j = j - 1; 
+                    } 
+                    arr[j + 1].evidencioni_broj = key; 
+                } 
+                break;
+            }
+            case DESC:{
+                for (i = 1; i < n; i++) { 
+                    key = arr[i].evidencioni_broj; 
+                    j = i - 1; 
+            
+                    while (j >= 0 && arr[j].evidencioni_broj < key) { 
+                        arr[j + 1] = arr[j]; 
+                        j = j - 1; 
+                    } 
+                    arr[j + 1].evidencioni_broj = key; 
+                } 
+                break;
 
-  if(fseek(file->fp, (adr - 1) * sizeof(Baket), SEEK_SET)){
-    error_print("Positioning error", file->name);
-    return;
-  }
-  if(!fwrite(baket, sizeof(Baket), 1, file->fp))
-    error_print("Write error", file->name);
-}
+            }
+            default:
+            {
 
-void read_baket(File *file, int adr, Baket* baket){
-  if(adr < 1 || adr > B) {
-    error_print("Invalid adress", file->name);
-    return;
-  }
+                for (i = 1; i < n; i++) { 
+                    key = arr[i].evidencioni_broj; 
+                    j = i - 1; 
+            
+                    while (j >= 0 && arr[j].evidencioni_broj > key) { 
+                        arr[j + 1] = arr[j]; 
+                        j = j - 1; 
+                    } 
+                    arr[j + 1].evidencioni_broj = key; 
+                } 
+                break;
+            }
+            }
+        }
+       case POVRSINA:{
+           switch (order_by) {
+           case ASC:{
 
-  if(fseek(file->fp, (adr - 1) * sizeof(Baket), SEEK_SET)){
-    error_print("Positioning error", file->name);
-    return;
-  }
+                for (i = 1; i < n; i++) { 
+                    key = arr[i].povrsina_parcele; 
+                    j = i - 1; 
+            
+                    while (j >= 0 && arr[j].povrsina_parcele > key) { 
+                        arr[j + 1] = arr[j]; 
+                        j = j - 1; 
+                    } 
+                    arr[j + 1].povrsina_parcele = key; 
+                } 
+               break;
+           }
+           case DESC:{
+                for (i = 1; i < n; i++) { 
+                    key = arr[i].povrsina_parcele; 
+                    j = i - 1; 
+            
+                    while (j >= 0 && arr[j].povrsina_parcele < key) { 
+                        arr[j + 1] = arr[j]; 
+                        j = j - 1; 
+                    } 
+                    arr[j + 1].povrsina_parcele = key; 
+                } 
+               break;
+           }
 
-  if(!fread(baket, sizeof(Baket), 1, file->fp))
-    error_print("Read error", file->name);
+           default:
+           {
+                for (i = 1; i < n; i++) { 
+                    key = arr[i].povrsina_parcele; 
+                    j = i - 1; 
+            
+                    while (j >= 0 && arr[j].povrsina_parcele > key) { 
+                        arr[j + 1] = arr[j]; 
+                        j = j - 1; 
+                    } 
+                    arr[j + 1].povrsina_parcele = key; 
+                } 
+               break;
+           }
+           }
+       }
+    }
+} 
 
-
-}
 Baket search(FILE* opened_file, int adresa){
     Baket baket;
     printf("\nTrazimo odgovarajuci baket...\n");
@@ -169,7 +284,6 @@ Baket search(FILE* opened_file, int adresa){
 
     }
 }
-
 int transform(unsigned int key, int method){
     int result;
     switch(method){

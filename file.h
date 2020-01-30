@@ -42,7 +42,7 @@
 #define get_adr(adresa,i) (i * k + adresa) % B
 
 typedef struct {
-    int evidencioni_broj;
+    unsigned int evidencioni_broj;
     char naziv_katastarske_opstine[MAX_NAZIV];
     unsigned int povrsina_parcele;
     char tip_parcele[MAX_TIP];
@@ -66,11 +66,12 @@ void open(File* file);
 void make(File* file);
 void show(File* file);
 void read(File* file);
+void lrem(File* file);
 
-void add(File* file);
+void view1(File* file);
+void view2(File* file);
 
 void write(File* file);
-void lremove();
-void view(File* file);
+void to_csv(File* file);
 
 #endif

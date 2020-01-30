@@ -5,6 +5,14 @@
 
 #define DEBUG 1
 
+#define EB 1
+#define NAZIV 2
+#define TIP 3
+#define POVRSINA 4
+
+#define ASC 1
+#define DESC 2
+
 #define CCKK 1
 #define ASCII_REGEX "[\x00-\x7F]+"
 
@@ -25,10 +33,13 @@ FILE* safe_open(char* path, char* mode);
 unsigned int safe_number_input(char* name, int min, int max);
 char* safe_string_input(char* input, int min, int max);
 
+void add_to_baket(Baket *baket, Parcela parcela, int i);
 Parcela input_parcela();
 
-void write_baket(File *file, int adr, Baket *baket);
-void read_baket(File *file, int adr, Baket *baket);
+int search_prekoracioci(FILE* opened_file, Baket *baket, int adresa, unsigned int ev);
+void write_baket(FILE *file, Baket *baket, int adr);
+void sort(Parcela arr[], int n, int with, int order_by);
+// void read_baket(File *file, int adr, Baket *baket);
 Baket search(FILE *opened_file, int adresa);
 
 int transform(unsigned int key, int method);

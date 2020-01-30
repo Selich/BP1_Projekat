@@ -6,45 +6,34 @@
 #include <regex.h>
 
 
-
-void input(){
-  char naziv[MAX_NAZIV];
-  char tip_parcele[MAX_TIP];
-  int povrsina;
-
-  printf("Naziv opstine: \t");
-  scanf("%s", naziv);
-
-  printf("Tip parcele: \t");
-  scanf("%s", tip_parcele);
-
-  printf("Povrsina parcele: \t");
-  scanf("%d", &povrsina);
-}
-
 // 1. formiranje prazne datoteke (sa B baketa i b faktorom baketiranja) pri čemu korisnik zadaje
 // naziv nove datoteke
 void make(File* file){
 
-    char *name = malloc(sizeof(char)*MAX_FILENAME);
+    char *name = (char*) malloc(sizeof(char) * MAX_FILENAME);
+    char path[20+MAX_FILENAME];
     int option;
+
+    strcpy(path, "./files/");
 
     printf("Unesite naziv datoteke: ");
     scanf("%s", name);
-    FILE* fp = fopen(name, "rb");
+
+    strcat(path, name);
+    printf("%s", path);
+
+    FILE* fp = fopen(path, "rb");
 
     if (fp) {
-        printf("Datoteka je vec formirana. \n");
+        printf(" Datoteka je vec formirana. \n");
         printf("\t 1. Otvorite postojecu. \n");
         printf("\t 2. Napravite novu sa istim imenom. \n");
         printf("\t 0. Exit. \n");
         scanf("%d", &option);
         if(option == 1){
-            // temp = (File*) malloc(sizeof(File));
             file->is_open = 1;
             file->name = name;
             file->fp = fp;
-            // file = temp;
             success_print("File opened",NULL);
             return;
         } else if (!option){
@@ -52,7 +41,7 @@ void make(File* file){
         }
     }
 
-    FILE* new = fopen(name, "wb+");
+    FILE* new = fopen(path, "wb+");
     printf("\nKreiramo novu datoteku...\n");
     Baket baketi[B];
     for(int i = 0; i < B; i++){
@@ -75,51 +64,47 @@ void make(File* file){
     file->fp = new;
 
     success_print("File created", file->name);
-    fclose(new);
 
 }
 // 2. izbor aktivne datoteke zadavanjem njenog naziva
 void open(File* file) {
 
-    char *name = malloc(sizeof(char)*MAX_FILENAME);
-    FILE* fp;
+    // char name[MAX_FILENAME];
+    char path[MAX_FILENAME + 20];
+    strcpy(path, "./files/");
 
     if (file->is_open){
         int option;
-        printf("Datoteka %s je trenutno otvorena.\n", file->name);
-        printf("Ukoliko zelite da nastavite rad sa vec otvorenom datotekom pritisnite '0'.\n");
-        printf("Ako zelite da otvorite novu, pritisnite bilo koj taster");
+        error_print("Otvorena datoteka", file->name);
+        printf("\n");
+        printf("\n\t0. Nastavite dalje sa otvorenom datotekom");
+        printf("\n\t1. Otvorite novu datoteku.\n");
         scanf("%d",&option);
-        if(!option)
-            return;
-        else{
-            file->is_open = 0;
-        }
+        if(!option){ return; }
     }
-    printf("Unesite naziv datoteke: ");
-    printf("\nMin size: %d", MIN_FILENAME);
-    printf("\tMax size: %d", MAX_FILENAME);
-    printf("\nIskljucivo ASCII karakteri!");
-    printf("\n---------------------------");
-    printf("\n");
-    scanf("%s",name);
-    printf("%s",name);
 
-    if(fp = safe_open(name, "rb")){
-        file->is_open = 1;
-        file->fp = fp;
-        file->name = name;
-        success_print("File opened", file->name);
+    char *name = safe_string_input("naziv datoteke", MIN_FILENAME, MAX_FILENAME);
+
+    strcat(path, name);
+
+    FILE *fp = fopen(path, "rb+");
+    if(!fp) {
+        error_print("File does not exist", name);
+        return;
     }
+    file->is_open = 1;
+    file->name = name;
+    file->fp = fp;
+    success_print("File opened", file->name);
 }
-
 
 // 3. prikaz naziva aktivne datoteke [meni i prve tri tačke 
 void show(File* file){
     file->is_open
-    ? printf("\nDatoteka: %s.\n", file->name)
+    ? printf("\nFile: %s\n", file->name)
     : printf("\nNije otvorena nijedna datoteka!\n");
 }
+
 
 
 // 4. upis novog sloga u aktivnu datoteku direktnim unosom podataka u realnom vremenu (3*)
@@ -128,27 +113,27 @@ void write(File* file){
 
     if(!is_file_opened(file)) return;
 
-    Baket baket;
-    FILE* opened_file = fopen(file->name, "rb+");
-    unsigned int ev;
-    int adresa;int check_if_in_use(){
+    char path[MAX_FILENAME + 20];
+    strcpy(path, "./files/");
+    strcat(path, file->name);
 
-}
+
+    unsigned int ev;
+    int adresa;
+    Baket baket;
 
     ev = safe_number_input("EV", MIN_EB, MAX_EB);
 
     adresa = transform(ev, CCKK);
 
-    baket = search(opened_file, adresa);
-
-
+    baket = search(file->fp, adresa);
 
 
     printf("\n\nProveravamo da li je moguce upisati slog...\n");
 
     for (int i = 0; i < b; i++) {
 
-        if(baket.slogovi[i].evidencioni_broj == (int)ev) {
+        if(baket.slogovi[i].evidencioni_broj == ev) {
             printf("\n IN_IF\n");
             switch (baket.slogovi[i].status_flag) {
                 case IN_USE:
@@ -157,8 +142,8 @@ void write(File* file){
                 case FREE:
                     baket.slogovi[i].status_flag = IN_USE;
                     baket.slobodni--;
-                    fseek(opened_file, sizeof(Baket) * adresa,SEEK_SET);
-                    fwrite(&baket, sizeof(Baket),1, opened_file);
+                    fseek(file->fp, sizeof(Baket) * adresa,SEEK_SET);
+                    fwrite(&baket, sizeof(Baket),1, file->fp);
                     success_print("Status je sada aktivan", file->name);
                     break;
                 default:
@@ -167,6 +152,9 @@ void write(File* file){
             }
         }
     }
+    if(baket.prekoracioci) 
+        if(search_prekoracioci(file->fp, &baket, adresa, ev))
+            return;
 
     printf("\nMozemo upisati slog!\n");
 
@@ -178,67 +166,48 @@ void write(File* file){
             if (baket.slogovi[i].status_flag == FREE) {
 
                 if(DEBUG) printf("\nUnutar slobodnog sloga %d", i);
+                add_to_baket(&baket, parcela, i);
 
-                baket.slogovi[i].status_flag = IN_USE;
-                baket.slogovi[i].povrsina_parcele = parcela.povrsina_parcele;
-                strcpy(baket.slogovi[i].naziv_katastarske_opstine, parcela.naziv_katastarske_opstine);
-                strcpy(baket.slogovi[i].tip_parcele, parcela.tip_parcele);
-                baket.slobodni--;
+                if (DEBUG)
+                    baket_print(adresa, &baket);
 
-                if(DEBUG){
-                    printf("\nBaket %d", baket.adresa);
-                    printf("\nBroj prekoracilaca %d", baket.prekoracioci);
-                    printf("\nSlobodnih %d", baket.slobodni);
-
-                    for(int i = 0; i < b; i++){
-                        if(baket.slogovi[i].status_flag == FREE) slog_print(i, &baket);
-                        if(baket.slogovi[i].status_flag == IN_USE) slog_print(i, &baket);
-                    }
-                }
-
-                fseek(opened_file, sizeof(Baket) * adresa, SEEK_SET);
-                fwrite(&baket, sizeof(Baket), 1, opened_file);
+                write_baket(file->fp, &baket, adresa);
 
                 return;
             }
         }
 
     }
-    file->fp = opened_file;
 
-    fclose(opened_file);
+    // if (baket.prekoracioci) {
 
-    /*
-    if (baket->prekoracioci) {
-
-        for (int i = 1; i <= B; ++i){
-            int adr = get_adr(adresa,i);
-            Baket* temp = search(file,adr);
-            short krajTrazenja = 0;
-            for (int j = 0; j < b; ++j) {
-                Parcela *slog = &(baket->slogovi[i]);
-                if (slog->status_flag == FREE) return;
-                if (slog->status_flag == input_slog.evidencioni_broj){
-                    switch (slog->status_flag) {
-                    case IN_USE:
-                        error_print("Vec postoji", NULL);
-                        return;
-                    case FREE:
-                        slog->status_flag = IN_USE;
-                        temp = search(file,adr);
-                        input_baket->prekoracioci++;
-                        input_baket = search(file,adr);
-                        success_print("Status je sada aktivan", file->name);
-                        return;
-                    default:
-                        error_print("Nekonzistentno stanje statusa", file->name);
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    */
+    //     for (int i = 1; i <= B; ++i){
+    //         int adr = get_adr(adresa,i);
+    //         Baket temp = search(file,adr);
+    //         short krajTrazenja = 0;
+    //         for (int j = 0; j < b; ++j) {
+    //             Parcela *slog = &baket.slogovi[i]);
+    //             if (slog->status_flag == FREE) return;
+    //             if (slog->evidencioni_broj == parcela.evidencioni_broj){
+    //                 switch (slog->status_flag) {
+    //                     case IN_USE:
+    //                         error_print("Vec postoji", NULL);
+    //                         return;
+    //                     case FREE:
+    //                         slog->status_flag = IN_USE;
+    //                         temp = search(file,adr);
+    //                         baket.prekoracioci++;
+    //                         baket = search(file,adr);
+    //                         success_print("Status je sada aktivan", file->name);
+    //                         return;
+    //                     default:
+    //                         error_print("Nekonzistentno stanje statusa", file->name);
+    //                         break;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 }
 // 5. prikaz svih slogova aktivne datoteke zajedno sa adresom baketa i rednim brojem sloga u baketu (2*)
 void read(File* file){
@@ -247,7 +216,6 @@ void read(File* file){
 
     Baket* temp = (Baket*) malloc(sizeof(Baket));
     FILE* file_temp = file->fp;
-    // FILE* file_temp = fopen(file->name, "rb");
     rewind(file_temp);
 
     if(is_file_opened(file)){
@@ -275,7 +243,7 @@ void read(File* file){
 
 
 // 6. logičko brisanje svih aktuelnih slogova iz aktivne datoteke (2*)
-void lremove(File *file){
+void lrem(File *file){
 
     if(!is_file_opened(file)){
       error_print("No active file!", NULL);
@@ -294,17 +262,6 @@ void lremove(File *file){
 
     printf("\nTrazimo odgovarajuci baket...\n");
 
-
-    for(int i = 0; i < b; i++) {
-      if(baket.slogovi[i].evidencioni_broj == (int)ev && baket.slogovi[i].status_flag) {
-            printf("\nNadjen odgovarajuci baket!\n");
-            baket.slogovi[i].status_flag = FREE;
-            baket.slobodni++;
-            fseek(opened_file, sizeof(Baket) *adresa, SEEK_SET);
-            fwrite(&baket, sizeof(Baket), 1, opened_file);
-            return;
-        }
-    }
     /*
      if (baket->prekoracioci) {
             for (int i = 1; i <= B; ++i){
@@ -327,6 +284,139 @@ void lremove(File *file){
     success_print("Slog je obrisan", file->name);
     */
 }
+// 7. učitavanje tačno onih slogova u dinamičku strukturu podataka u kojima vrednost obeležja
+// površina parcele prelazi zadatu donju granicu, 
+// sortiranje tih podataka unutar strukture
+// podataka prema rastućoj vrednosti obeležja površina parcele 
+//i prikaz članova tako uređene
+// strukture podataka (5*)
+
+void view1(File* file){
+    unsigned int ev;
+    int povrsina;
+    int adresa;
+    Baket baket;
+    Parcela *slogovi = (Parcela*)malloc(sizeof(Parcela));
+    int array_size = 0;
+
+    if(!is_file_opened(file))
+        return;
+
+    printf("\nUnesite povrsinu:\n");
+    scanf("%d", &povrsina);
+
+    for(int adr = 0; adr < B; adr++){
+        fseek(file->fp, sizeof(Baket) * adr, SEEK_SET);
+        fread(&baket, sizeof(Baket), 1, file->fp);
+        for (int j = 0; j < b; j++){
+            if (baket.slogovi[j].povrsina_parcele > povrsina && baket.slogovi[j].status_flag == IN_USE) {
+                printf("\nBaket = %d\n", baket.slogovi[j].povrsina_parcele);
+                // array_size = sizeof(slogovi) / sizeof(slogovi[0]);
+                array_size++;
+                Parcela new_slog;
+                slogovi = (Parcela *) realloc(slogovi, array_size * sizeof(Parcela));
+                slogovi[array_size - 1] = new_slog;
+            }
+        }
+    }
+    printf("\nOut of for loop ");
+
+    //sort(slogovi, array_size);
+
+    for (int rbr = 0; rbr < array_size; rbr++) {
+        printf("\n");
+        printf("\n\tParcela: \t\t\t\t %d", rbr);
+        printf("\n\t-------- \t\t\t\t---");
+        printf("\n\t  Evidencioni broj:\t\t\t %d", slogovi[rbr].evidencioni_broj);
+        printf("\n\t  Naziv katasterske opstine:\t\t%s", slogovi[rbr].naziv_katastarske_opstine);
+        printf("\n\t  Povrsina parcele:\t\t\t %d", slogovi[rbr].povrsina_parcele);
+        printf("\n\t  Tip parcele:\t\t\t\t%s", slogovi[rbr].tip_parcele);
+        printf("\n"); 
+    }
+
+
+}
+void view2(File* file){
+    unsigned int ev;
+    int povrsina;
+    int adresa;
+    Baket baket;
+    Parcela *slogovi = (Parcela*)malloc(sizeof(Parcela));
+    int array_size = 0;
+
+    if(!is_file_opened(file))
+        return;
+
+    printf("\nUnesite povrsinu:\n");
+    scanf("%d", &povrsina);
+
+    for(int adr = 0; adr < B; adr++){
+        fseek(file->fp, sizeof(Baket) * adr, SEEK_SET);
+        fread(&baket, sizeof(Baket), 1, file->fp);
+        for (int j = 0; j < b; j++){
+            if (baket.slogovi[j].povrsina_parcele <= povrsina && baket.slogovi[j].status_flag == IN_USE) {
+                printf("\nBaket = %d\n", baket.slogovi[j].povrsina_parcele);
+                // array_size = sizeof(slogovi) / sizeof(slogovi[0]);
+                array_size++;
+                Parcela new_slog;
+                slogovi = (Parcela *) realloc(slogovi, array_size * sizeof(Parcela));
+                slogovi[array_size - 1] = new_slog;
+            }
+        }
+    }
+    printf("\nOut of for loop ");
+
+    //sort(slogovi, array_size);
+
+    for (int rbr = 0; rbr < array_size; rbr++) {
+        printf("\n");
+        printf("\n\tParcela: \t\t\t\t %d", rbr);
+        printf("\n\t-------- \t\t\t\t---");
+        printf("\n\t  Evidencioni broj:\t\t\t %d", slogovi[rbr].evidencioni_broj);
+        printf("\n\t  Naziv katasterske opstine:\t\t%s", slogovi[rbr].naziv_katastarske_opstine);
+        printf("\n\t  Povrsina parcele:\t\t\t %d", slogovi[rbr].povrsina_parcele);
+        printf("\n\t  Tip parcele:\t\t\t\t%s", slogovi[rbr].tip_parcele);
+        printf("\n"); 
+    }
+
+
+}
+
+void to_csv(File* file){
+    int i, count, id, micro, dcn, ds, rd;
+    char *filename = file->name;
+
+    if(is_file_opened(file))
+        return;
+
+    printf("\nCreating %s.csv file", file->name);
+    strcat(filename,".csv");
+
+    FILE* fp = fopen(filename,"w+");
+    Baket temp;
+
+    fprintf(fp, "Evidencioni Broj, Naziv, Tip, Povrsina");
+    for(int adr = 0; adr < B; adr++){
+
+        fseek(fp, sizeof(Baket) * adr, SEEK_SET);
+        fread(&temp, sizeof(Baket), 1, fp);
+
+        for(int i = 0; i < b; i++){
+            if(temp.slogovi[i].status_flag == IN_USE) 
+                fprintf(fp,"\n%u,%s,%s,%u",
+                temp.slogovi[i].evidencioni_broj,
+                temp.slogovi[i].naziv_katastarske_opstine,
+                temp.slogovi[i].tip_parcele,
+                temp.slogovi[i].povrsina_parcele
+                );
+        }
+
+     }
+
+    success_print("Datoteka je kreirana", filename);
+}
+
+
 
 
 // TODO: Acs sorting order print
