@@ -138,7 +138,12 @@ int is_number(char *s) {
     while (*s) {
         if (isdigit(*s++) == 0) return 0;
     }
-
+    return 1;
+}
+int is_string(char *s) {
+    while (*s) {
+        if ('!' > (*s++) || '~' < (*s++)) return 0;
+    }
     return 1;
 }
 
@@ -180,6 +185,7 @@ char* safe_string_input(char* name, int min, int max){
     printf("\n---------------------------");
     printf("\n");
     scanf("%s",input);
+
     return input;
 }
 void sort(Parcela arr[], int n, int with, int order_by) { 
@@ -320,16 +326,10 @@ uint transform(uint key, int method){
 
 int transform_centralnih_cifara_kljuca(uint key) {
 
-    uint br_cifara = 7;
-    uint osnova = 10;
-    uint n = ceil(log10((double)B));
-    uint t = floor((double)br_cifara - (double)n / 2.0);
-    unsigned long int k2 = key * key;
-    int A =
-     (int)floor(k2 / pow((double)osnova, (double)t)) %
-     (int)floor(pow((double)osnova, (double)n));
+    unsigned long int k2 = pow2(key);
+    int A1 = (int)floor(k2 / pow((double)osnova, (double)Tt));
+    int A2 = (int)floor(pow((double)osnova, (double)Tn));
+    int A = A1 % A2;
+    return ((A * B) / pow((double)osnova, (double)Tn));
 
-    A = ((A * B) / pow((double)osnova, (double)n));
-
-    return A;
 }

@@ -16,8 +16,8 @@ public class Parcela {
         String[] fields = row.split(",");
         this.evidencioniBroj = Integer.parseInt(fields[0]);
         this.nazivKatasterskeOpstine = fields[1];
-        this.povrsina = Integer.parseInt(fields[2]);
-        this.tip = fields[3];
+        this.tip = fields[2];
+        this.povrsina = Integer.parseInt(fields[3]);
     }
 
     public Parcela(Integer evidencioniBroj, String nazivKatasterskeOpstine, Integer pParcele, String tipParcele) {

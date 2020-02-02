@@ -13,6 +13,13 @@
 #define TIP 3
 #define POVRSINA 4
 
+#define Tn ceil(log10((double)B))
+#define osnova 10
+#define br_cifara 7
+#define Tt floor((double)br_cifara - (double)Tn / 2.0)
+
+#define pow2(x) x * x
+
 #define ASC 1
 #define DESC 2
 
@@ -33,7 +40,7 @@ void slog_print(int rbr, Baket *baket);
 void baket_print(Baket *baket);
 FILE* safe_open(char* path, char* mode);
 
-unsigned int safe_number_input(char* name, int min, int max);
+uint safe_number_input(char* name, int min, int max);
 char* safe_string_input(char* input, int min, int max);
 
 void add_to_baket(Baket *baket, Parcela parcela, int i);
@@ -44,6 +51,7 @@ void write_baket(FILE *file, Baket *baket, int adr);
 void sort(Parcela arr[], int n, int with, int order_by);
 // void read_baket(File *file, int adr, Baket *baket);
 Baket search(FILE *opened_file, uint adresa);
+int is_string(char *s);
 
 uint transform(uint key, int method);
 int transform_centralnih_cifara_kljuca(unsigned int key);
