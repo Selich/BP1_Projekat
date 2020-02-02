@@ -2,28 +2,36 @@ package acs.uns.ac.rs.model;
 
 public class Parcela {
 
-    private String evidencioniBroj;
+
+    private Integer evidencioniBroj;
     private String nazivKatasterskeOpstine;
-    private Integer pParcele;
-    private String tipParcele;
+    private Integer povrsina;
+    private String tip;
 
     public Parcela() {
         super();
     }
 
-    public Parcela(String evidencioniBroj, String nazivKatasterskeOpstine, Integer pParcele, String tipParcele) {
+    public Parcela(String row) {
+        String[] fields = row.split(",");
+        this.evidencioniBroj = Integer.parseInt(fields[0]);
+        this.nazivKatasterskeOpstine = fields[1];
+        this.povrsina = Integer.parseInt(fields[2]);
+        this.tip = fields[3];
+    }
+
+    public Parcela(Integer evidencioniBroj, String nazivKatasterskeOpstine, Integer pParcele, String tipParcele) {
         super();
         this.evidencioniBroj = evidencioniBroj;
         this.nazivKatasterskeOpstine = nazivKatasterskeOpstine;
-        this.pParcele = pParcele;
-        this.tipParcele = tipParcele;
+        this.povrsina = pParcele;
+        this.tip = tipParcele;
     }
-
-    public String getEvidencioniBroj() {
+    public Integer getEvidencioniBroj() {
         return evidencioniBroj;
     }
 
-    public void setEvidencioniBroj(String evidencioniBroj) {
+    public void setEvidencioniBroj(Integer evidencioniBroj) {
         this.evidencioniBroj = evidencioniBroj;
     }
 
@@ -35,19 +43,20 @@ public class Parcela {
         this.nazivKatasterskeOpstine = nazivKatasterskeOpstine;
     }
 
-    public Integer getpParcele() {
-        return pParcele;
+    public Integer getPovrsina() {
+        return povrsina;
     }
 
-    public void setpParcele(Integer pParcele) {
-        this.pParcele = pParcele;
+    public void setPovrsina(Integer povrsina) {
+        this.povrsina = povrsina;
     }
 
-    public String getTipParcele() {
-        return tipParcele;
+    public String getTip() {
+        return tip;
     }
 
-    public void setTipParcele(String tipParcele) {
-        this.tipParcele = tipParcele;
+    public void setTip(String tip) {
+        this.tip = tip;
     }
+
 }

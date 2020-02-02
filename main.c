@@ -74,8 +74,13 @@ int main(){
       printf("\t     |");
       printf("\n | 6. Logicko brisanje");
       printf("\t\t     |");
-      printf("\n | 7. Parcela koji imaju manju P");
-      printf("     |");
+      printf("\n | 7. View 1");
+      printf("\t\t\t     |");
+      printf("\n | 8. View 2");
+      printf("\t\t\t     |");
+      printf("\n | 9. To CSV");
+      printf("\t\t\t     |");
+      printf("\n |-----------------------------------|");
       printf("\n | 0. Kraj");
       printf("\t\t\t     |");
       printf("\n  -----------------------------------");

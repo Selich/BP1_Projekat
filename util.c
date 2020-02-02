@@ -1,8 +1,10 @@
 #include <math.h>
-#include "constraints.h"
-#include "util.h"
+#include <ctype.h>
 #include <regex.h>
 #include <string.h>
+#include "constraints.h"
+#include "util.h"
+
 
 
 
@@ -24,6 +26,7 @@ void find_baket(Baket *baket,  FILE** temp, int adresa){
 
 
 void add_to_baket(Baket *baket, Parcela parcela, int i){
+    baket->slogovi[i].evidencioni_broj = parcela.evidencioni_broj;
     baket->slogovi[i].status_flag = IN_USE;
     baket->slogovi[i].povrsina_parcele = parcela.povrsina_parcele;
     strcpy(baket->slogovi[i].naziv_katastarske_opstine, parcela.naziv_katastarske_opstine);
@@ -39,33 +42,38 @@ void write_baket(FILE* file, Baket *baket, int adress){
 
 
 int search_prekoracioci(FILE* opened_file, Baket *baket, int adresa, unsigned int ev){
-        for (int i = 0; i <= B; i++){
-            int current_address = (i * k + adresa) % B;
+    printf("\nTrazimo prekoracioce!\n");
+    for (int i = 0; i <= B; i++)
+    {
+        int current_address = (i * k + adresa) % B;
 
-            Baket temp_baket = search(opened_file, current_address);
+        Baket temp_baket = search(opened_file, current_address);
 
-            for (int j = 0; j < b; j++){
-                if(temp_baket.slogovi[j].status_flag == FREE)
+        for (int j = 0; j < b; j++)
+        {
+            if (temp_baket.slogovi[j].status_flag == FREE)
+                return 1;
+            if (temp_baket.slogovi[i].evidencioni_broj == ev)
+            {
+                if (temp_baket.slogovi[i].status_flag)
+                {
+                    error_print("Slog vec postoji", NULL);
                     return 1;
-                if (temp_baket.slogovi[i].evidencioni_broj == ev){
-                    if (temp_baket.slogovi[i].status_flag) {
-                      error_print("Slog vec postoji", NULL);
-                      return 1;
-                    } else {
-                      temp_baket.slogovi[i].status_flag = IN_USE;
+                }
+                else
+                {
+                    temp_baket.slogovi[i].status_flag = IN_USE;
 
-                      write_baket(opened_file, &temp_baket, current_address);
-                      temp_baket.prekoracioci++;
-                      write_baket(opened_file, baket, adresa);
+                    write_baket(opened_file, &temp_baket, current_address);
+                    temp_baket.prekoracioci++;
+                    write_baket(opened_file, baket, adresa);
 
-                      success_print("Status je sada aktivan", NULL);
-                      break;
-                    }
-
+                    success_print("Status je sada aktivan", NULL);
+                    break;
                 }
             }
         }
-
+    }
 }
 
 
@@ -109,7 +117,7 @@ void slog_print(int rbr, Baket *baket){
     printf("\n\t  Povrsina parcele:\t\t\t %d", baket->slogovi[rbr].povrsina_parcele);
     printf("\n\t  Tip parcele:\t\t\t\t%s", baket->slogovi[rbr].tip_parcele);
 }
-void baket_print(int adr, Baket *baket){
+void baket_print(Baket *baket){
     printf("\nBaket %d",  baket->adresa);
     printf("\nBroj prekoracilaca %d", baket->prekoracioci);
     printf("\nSlobodnih %d", baket->slobodni);
@@ -126,21 +134,31 @@ FILE* safe_open(char* path, char* mode){
     }
     return fp;
 }
+int is_number(char *s) {
+    while (*s) {
+        if (isdigit(*s++) == 0) return 0;
+    }
+
+    return 1;
+}
 
 
-unsigned int safe_number_input(char *name, int min, int max){
-  unsigned int input;
-  do{
-    printf("\nUnesite %s:\t", name);
-    printf("\nMin: %d", min);
-    printf("\tMax: %d", max);
-    printf("\n---------------------------");
-    printf("\n");
-    scanf("%u", &input);
-    if(input > max && input < min)
-        error_print("Enter a valid number", NULL);
+uint safe_number_input(char *name, int min, int max){
+  int err;
+  uint input;
+  do
+  {
+      printf("\nUnesite %s:\t", name);
+      printf("\nMin: %d", min);
+      printf("\tMax: %d", max);
+      printf("\n---------------------------\n");
+      scanf("%d", &input);
+      if (input > max || input < min)
+          error_print("Enter a valid number", NULL);
 
-  } while (input > max && input < min);
+  } while (input > max || input < min );
+  printf("\n%u\n", input);
+
   return input;
 }
 
@@ -262,7 +280,7 @@ void sort(Parcela arr[], int n, int with, int order_by) {
     }
 } 
 
-Baket search(FILE* opened_file, int adresa){
+Baket search(FILE* opened_file, uint adresa){
     Baket baket;
     printf("\nTrazimo odgovarajuci baket...\n");
 
@@ -284,8 +302,8 @@ Baket search(FILE* opened_file, int adresa){
 
     }
 }
-int transform(unsigned int key, int method){
-    int result;
+uint transform(uint key, int method){
+    uint result;
     switch(method){
         case CCKK:
             result =  transform_centralnih_cifara_kljuca(key);
@@ -300,30 +318,18 @@ int transform(unsigned int key, int method){
     return result;
 }
 
-int transform_centralnih_cifara_kljuca(unsigned int key) {
+int transform_centralnih_cifara_kljuca(uint key) {
 
+    uint br_cifara = 7;
+    uint osnova = 10;
+    uint n = ceil(log10((double)B));
+    uint t = floor((double)br_cifara - (double)n / 2.0);
+    unsigned long int k2 = key * key;
+    int A =
+     (int)floor(k2 / pow((double)osnova, (double)t)) %
+     (int)floor(pow((double)osnova, (double)n));
 
-  int p = 7;
-  int v = 10;
-  unsigned int cifre[14];
-  unsigned int temp = 0;
+    A = ((A * B) / pow((double)osnova, (double)n));
 
-  unsigned long long long_key = (unsigned long long)key * key;
-  int t = floor(7/ 2);
-  for(int i = 0; i < 14; i++){
-    cifre[i] = (unsigned int)long_key % 10;
-    long_key /= 10;
-  }
-  printf("\nKEY:\n");
-  for(int i = p*2 - 1 - t; i >= t + 1;i--){
-    temp += cifre[i] * pow(v,i - t - 1);
-    printf("%d",cifre[i]);
-  }
-  printf("\nTEMP: %u", temp);
-  temp *= (B/v);
-  temp += 1;
-  return temp;
-
-
-
+    return A;
 }

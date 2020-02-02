@@ -1,38 +1,32 @@
 package acs.uns.ac.rs.ui_handler;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 public class MainUIHandler {
 
     public static Scanner sc = new Scanner(System.in);
+    private final ParcelaUIHandler parcelaUIHandler = new ParcelaUIHandler();
 
-    // private final RadnikUIHandler radnikUIHandler = new RadnikUIHandler();
+    public void printMenu(){
+        System.out.println("Opcija:");
+        System.out.println("1. - Rukovanje parcelama");
+        System.out.println("0. - Exit");
+    }
 
 
-    public void handleMainMenu(){
-        String answer;
-
+    public void handleMainMenu() throws IOException {
+        int answer;
 
         do {
-            System.out.println("Opcija:");
-            System.out.println("1. - Rukovanje parcelama:");
-            answer = sc.nextLine();
+            printMenu();
+            answer = sc.nextInt();
 
-
-            switch (answer){
-                case "1":
-                    // todo handler
-                    // radnikUIHandler.handleRadnikMenu();
-                    break;
-                case "2":
-                    // todo handler
-                    break;
-                case "3":
-                    // todo handler
-                    break;
-                default:
-                    System.out.println("Enter a valid option");
+            if (answer == 1) {
+                parcelaUIHandler.handleParcelaMenu();
+            } else {
+                System.out.println("Enter a valid option");
             }
-        } while (!answer.equals("0"));
+        } while (answer != 0);
     }
 }

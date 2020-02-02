@@ -9,6 +9,7 @@ public class ConnectionUtil {
     private static Connection instance = null;
 
 
+    @Deprecated
     public static Connection getConnection() throws SQLException {
         if (instance == null || instance.isClosed()){
             try {

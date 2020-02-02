@@ -10,10 +10,10 @@ public interface CRUDDao<T, ID> {
     void deleteById(ID id) throws SQLException;
     boolean existsById(ID id) throws SQLException;
     Iterable<T> findAll() throws SQLException;
-    Iterable<T> findAllById(Iterable<ID> ids) throws SQLException;
     T findById(ID id) throws SQLException;
     void save(T entity) throws SQLException;
-    void saveAll(Iterable<T> entities) throws SQLException;
+    void update(T entity) throws SQLException;
+    void insert(T entity) throws SQLException;
 
 }
 

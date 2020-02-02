@@ -5,6 +5,9 @@
 
 #define DEBUG 1
 
+
+#define uint unsigned int
+
 #define EB 1
 #define NAZIV 2
 #define TIP 3
@@ -27,7 +30,7 @@ void print_menu();
 void error_print(char* msg, char* file_name);
 void success_print(char* msg, char* file_name);
 void slog_print(int rbr, Baket *baket);
-void baket_print(int adr, Baket *baket);
+void baket_print(Baket *baket);
 FILE* safe_open(char* path, char* mode);
 
 unsigned int safe_number_input(char* name, int min, int max);
@@ -40,9 +43,9 @@ int search_prekoracioci(FILE* opened_file, Baket *baket, int adresa, unsigned in
 void write_baket(FILE *file, Baket *baket, int adr);
 void sort(Parcela arr[], int n, int with, int order_by);
 // void read_baket(File *file, int adr, Baket *baket);
-Baket search(FILE *opened_file, int adresa);
+Baket search(FILE *opened_file, uint adresa);
 
-int transform(unsigned int key, int method);
+uint transform(uint key, int method);
 int transform_centralnih_cifara_kljuca(unsigned int key);
 FILE *create_baket(char *name);
 short is_file_opened(File *file);
